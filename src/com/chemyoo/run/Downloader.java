@@ -148,7 +148,7 @@ public class Downloader extends Thread {
 			logger.error(e.getMessage(), e);
 		} finally {
 			IOUtils.closeQuietly(in);
-//			待文件流被释放后，下载成功，进行文件分辨率辨识		
+			// 待文件流被释放后，下载成功，进行文件分辨率辨识		
 			in = null;
 			if(httpConnection != null)
 				httpConnection.disconnect();
