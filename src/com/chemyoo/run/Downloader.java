@@ -7,10 +7,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Random;
-
-import javax.net.ssl.HttpsURLConnection;
 import javax.swing.JLabel;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
@@ -79,7 +76,7 @@ public class Downloader extends Thread{
 			return;
 		}
 		InputStream in = null;
-		HttpsURLConnection httpConnection = null;
+		HttpURLConnection httpConnection = null;
 		if(!isNotBlank(fileName)) {
 			fileName = DigestUtils.md5Hex(musicId) + ".mp3";
 		} 
@@ -94,7 +91,7 @@ public class Downloader extends Thread{
 		try (FileOutputStream write = new FileOutputStream(file)){
 			String userAgent = new String []{"Mozilla/4.0","Mozilla/5.0","Opera/9.80"}[random.nextInt(3)];
 			URL uri = new URL(url);
-			httpConnection = (HttpsURLConnection) uri.openConnection();
+			httpConnection = (HttpURLConnection) uri.openConnection();
 			
 			// 设置连接主机超时（单位：毫秒）  
 			httpConnection.setConnectTimeout(60 * 1000);
