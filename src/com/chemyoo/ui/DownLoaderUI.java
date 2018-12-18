@@ -7,6 +7,8 @@ import com.chemyoo.run.Downloader;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileSystemView;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -51,7 +53,7 @@ public class DownLoaderUI extends JFrame{
 		JPanel pane4 = new JPanel();
 		JPanel pane5 = new JPanel();
 
-        JLabel label1=new JLabel("网易云音乐链接*:");  
+        JLabel label1=new JLabel("网易云音乐链接*");  
         Dimension preferredSize = new Dimension(98,20);//设置尺寸
         label1.setPreferredSize(preferredSize);
         label1.setHorizontalAlignment(JTextField.RIGHT);
@@ -60,7 +62,7 @@ public class DownLoaderUI extends JFrame{
         pane1.add(label1);  
         pane1.add(musicUrl);  
         
-        JLabel label4 = new JLabel("文件名(可不填写):");  
+        JLabel label4 = new JLabel("文件名(可不填)");  
         label4.setPreferredSize(preferredSize);
         label4.setHorizontalAlignment(JTextField.RIGHT);
         final JTextField fileName = new JTextField();  
@@ -71,11 +73,11 @@ public class DownLoaderUI extends JFrame{
         pane1.setAlignmentX(LEFT_ALIGNMENT);
         pane5.setAlignmentX(LEFT_ALIGNMENT);
         
-        JLabel label2=new JLabel("本地保存路径*:");  
+        JLabel label2=new JLabel("本地保存路径*");  
         preferredSize = new Dimension(98,20);//设置尺寸
         label2.setPreferredSize(preferredSize);
         label2.setHorizontalAlignment(JTextField.RIGHT);
-        final JTextField path = new JTextField();  
+        final JTextField path = new JTextField(FileSystemView.getFileSystemView().getHomeDirectory().getAbsolutePath());  
         path.setColumns(25);  
         pane2.add(label2);  
         pane2.add(path);  
@@ -109,11 +111,20 @@ public class DownLoaderUI extends JFrame{
 		pane4.add(message);
         
         start.addMouseListener(new MouseEventAdapter() {
+			/* (non-Javadoc)
+			 * @see com.chemyoo.ui.MouseEventAdapter#mouseClicked(java.awt.event.MouseEvent)
+			 */
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if(isNotBlank(musicUrl.getText()) && isNotBlank(path.getText())) {
 					try {
-						new Downloader(musicUrl.getText(), fileName.getText(), path.getText(), message).start();
+						start.setEnabled(false);
+						message.setText("");
+						new Downloader(musicUrl.getText(), 
+								fileName.getText(), 
+								path.getText(), 
+								message, 
+								start).start();
 					} catch (Exception ex) {
 						message.setForeground(Color.RED);
 						message.setText("下载失败：" + ex.getMessage());

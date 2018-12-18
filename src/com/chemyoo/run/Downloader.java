@@ -7,6 +7,9 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Random;
+import java.util.concurrent.Semaphore;
+
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
@@ -20,7 +23,7 @@ import com.chemyoo.ui.PropertiesUtils;
  * @since since from 2018年12月18日 下午1:39:52 to now.
  * @description class description
  */
-public class Downloader extends Thread{
+public class Downloader extends Thread {
 	
 	private String fileName;
 	
@@ -35,7 +38,14 @@ public class Downloader extends Thread{
 	private static final String API_URL = "http://music.163.com/song/media/outer/url?id=${id}.mp3";
 	protected static Random random = new Random();
 	
-	public Downloader( String musicUrl, String fileName, String savePath, JLabel message) {
+	// 公平信号量，信号量至少为一个
+	private final Semaphore semaphore = new Semaphore(1, true);
+	
+	private JButton excuting;
+	
+	private Logger logger = Logger.getLogger(Downloader.class.getName());
+	
+	public Downloader(String musicUrl, String fileName, String savePath, JLabel message, JButton excuting) {
 		this.fileName = fileName;
 		this.savePath = savePath;
 		this.message = message;
@@ -49,6 +59,7 @@ public class Downloader extends Thread{
 			}
 		}
 		this.musicUrl = musicUrl;
+		this.excuting = excuting;
 	}
 	
 	private static boolean isNotBlank(String...args) {
@@ -89,6 +100,7 @@ public class Downloader extends Thread{
 		if(!parent.exists()) parent.mkdirs();
 		
 		try (FileOutputStream write = new FileOutputStream(file)){
+			semaphore.acquire();
 			String userAgent = new String []{"Mozilla/4.0","Mozilla/5.0","Opera/9.80"}[random.nextInt(3)];
 			URL uri = new URL(url);
 			httpConnection = (HttpURLConnection) uri.openConnection();
@@ -110,7 +122,7 @@ public class Downloader extends Thread{
 				if(in == null)
 					in = httpConnection.getInputStream();
 				
-				Logger.getLogger("Downloader").info("网址：" + url + "访问失败：" 
+				logger.error("网址：" + url + "访问失败：" 
 						+ IOUtils.toString(in, "gb2312"));
 				throw new IllegalAccessError("网址连接失败...");
 			} else {
@@ -118,29 +130,31 @@ public class Downloader extends Thread{
 				int available = httpConnection.getContentLength();
 				String size = String.format("文件大小%.2fMB，", available * 1F / (1024 * 1024));
 				long count = 0;
-				message.setForeground(Color.GREEN);
+				message.setForeground(Color.BLUE);
 				byte [] bytes = new byte[in.available()];
 				message.setVisible(true);
 				while (in.read(bytes) != -1) {
 					write.write(bytes);
 					count += bytes.length;
 					bytes = new byte[in.available()];
-					message.setText(size + "下载进度：" +(count * 100 / available) + "%");
+					message.setText(size + "正在下载：" +(count * 100 / available) + "%");
 				}
+				message.setText(size + "下载完成：100%");
 			}
-			message.setText("下载成功！");
 		} catch (Exception e) {
 			message.setForeground(Color.RED);
 			message.setText("下载失败，详情请查看/logs下的日志。" );
 			message.setVisible(true);
-			Logger.getLogger("Downloader").error(e.getMessage(), e);
+			logger.error(e.getMessage(), e);
 		} finally {
 			IOUtils.closeQuietly(in);
 //			待文件流被释放后，下载成功，进行文件分辨率辨识		
 			in = null;
 			if(httpConnection != null)
 				httpConnection.disconnect();
+			semaphore.release();
+			excuting.setEnabled(true);
 		}
+		//https://music.163.com/song?id=30064263&userid=135693455
 	}
-	
 }
