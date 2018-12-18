@@ -51,7 +51,7 @@ public class DownLoaderUI extends JFrame{
 		JPanel pane4 = new JPanel();
 		JPanel pane5 = new JPanel();
 
-        JLabel label1=new JLabel("网易云音乐链接:");  
+        JLabel label1=new JLabel("网易云音乐链接*:");  
         Dimension preferredSize = new Dimension(98,20);//设置尺寸
         label1.setPreferredSize(preferredSize);
         label1.setHorizontalAlignment(JTextField.RIGHT);
@@ -60,7 +60,7 @@ public class DownLoaderUI extends JFrame{
         pane1.add(label1);  
         pane1.add(musicUrl);  
         
-        JLabel label4 = new JLabel("文件名:");  
+        JLabel label4 = new JLabel("文件名(可不填写):");  
         label4.setPreferredSize(preferredSize);
         label4.setHorizontalAlignment(JTextField.RIGHT);
         final JTextField fileName = new JTextField();  
