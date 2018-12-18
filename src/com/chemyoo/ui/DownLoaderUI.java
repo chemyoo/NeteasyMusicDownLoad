@@ -131,7 +131,7 @@ public class DownLoaderUI extends JFrame{
 						message.setVisible(true);
 					}
 				} else {
-					message.setText("音乐ID或保存路径不能为空！");
+					message.setText("音乐链接和保存路径都不能为空！");
 					message.setVisible(true);
 					LOG.info("download failure.");
 				}
