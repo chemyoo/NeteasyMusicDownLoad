@@ -77,22 +77,25 @@ public class Downloader extends Thread {
 		String url = musicUrl;
 		if(musicId != null) {
 			url = API_URL.replace("${id}", musicId);
-			this.checkMusicResource(url);
+			fileName = musicId;
 		} else {
-			musicId = url.substring(url.replace('\\', '/').lastIndexOf('/') + 1);
+			fileName = url.substring(url.replace('\\', '/').lastIndexOf('/') + 1);
 		}
-		
+		String ext = this.getFileExt(url);
+		if(ext == null || ext.length() > 5) {
+			this.setMessage(Color.RED, "此链接无法下载...");
+			this.setEnabled();
+			return;
+		} 
+		if(!isNotBlank(fileName)) {
+			fileName = DigestUtils.md5Hex(fileName) + ext;
+		} 
+		if(this.getFileExt(fileName) == null) {
+			fileName += ext;
+		}
 		InputStream in = null;
 		HttpURLConnection httpConnection = null;
-		String ext = this.getFileExt(musicUrl);
-		if(ext != null) {
-			fileName = musicId;
-		} else if(!isNotBlank(fileName)) {
-			fileName = DigestUtils.md5Hex(musicId) + ".mp3";
-		} 
-		if(ext == null && !fileName.endsWith(".mp3")) {
-			fileName += ".mp3";
-		} 
+		
 		File file = new File(savePath + PropertiesUtils.getFileSeparator() + fileName);
 		File parent = file.getParentFile();
 		
@@ -141,9 +144,7 @@ public class Downloader extends Thread {
 				message.setText(size + "下载完成：100%");
 			}
 		} catch (Exception e) {
-			message.setForeground(Color.RED);
-			message.setText("下载失败，详情请查看/logs下的日志。" );
-			message.setVisible(true);
+			this.setMessage(Color.RED, "下载失败，详情请查看/logs下的日志。");
 			logger.error(e.getMessage(), e);
 		} finally {
 			IOUtils.closeQuietly(in);
@@ -152,22 +153,25 @@ public class Downloader extends Thread {
 			if(httpConnection != null)
 				httpConnection.disconnect();
 			semaphore.release();
-			excuting.setEnabled(true);
+			this.setEnabled();
 		}
 		//https://music.163.com/song?id=30064263&userid=135693455
 	}
 	
-	private void checkMusicResource(String url) {
-		if(!url.endsWith(".mp3")) {
-			message.setForeground(Color.RED);
-			message.setText("此链接无法下载音乐...");
-			message.setVisible(true);
-			throw new IllegalAccessError("此链接无法下载音乐...");
-		}
+	private String getFileExt(String path) {
+		String name = path.substring(path.replace('\\', '/').lastIndexOf('/') + 1);
+		if(!name.contains(".")) return null;
+		return name.substring(name.lastIndexOf('.'));
 	}
 	
-	private String getFileExt(String path) {
-		if(!path.contains(".")) return null;
-		return path.substring(path.lastIndexOf('.'));
+	private void setMessage(Color color, String msg) {
+		if(color != null) message.setForeground(color);
+		
+		message.setText(msg);
+		message.setVisible(true);
+	}
+	
+	private void setEnabled() {
+		excuting.setEnabled(true);
 	}
 }

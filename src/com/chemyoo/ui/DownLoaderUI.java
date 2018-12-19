@@ -117,7 +117,7 @@ public class DownLoaderUI extends JFrame{
 				if(isNotBlank(musicUrl.getText()) && isNotBlank(path.getText())) {
 					try {
 						start.setEnabled(false);
-						message.setText("");
+						message.setVisible(false);
 						new Downloader(musicUrl.getText(), 
 								fileName.getText(), 
 								path.getText(), 
