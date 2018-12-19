@@ -77,22 +77,20 @@ public class Downloader extends Thread {
 		String url = musicUrl;
 		if(musicId != null) {
 			url = API_URL.replace("${id}", musicId);
+			this.checkMusicResource(url);
 		} else {
 			musicId = url.substring(url.replace('\\', '/').lastIndexOf('/') + 1);
 		}
-		if(!url.endsWith(".mp3")) {
-			message.setForeground(Color.RED);
-			message.setText("此链接无法下载音乐...");
-			message.setVisible(true);
-			excuting.setEnabled(true);
-			return;
-		}
+		
 		InputStream in = null;
 		HttpURLConnection httpConnection = null;
-		if(!isNotBlank(fileName)) {
+		String ext = this.getFileExt(musicUrl);
+		if(ext != null) {
+			fileName = musicId;
+		} else if(!isNotBlank(fileName)) {
 			fileName = DigestUtils.md5Hex(musicId) + ".mp3";
 		} 
-		if(!fileName.endsWith(".mp3")) {
+		if(ext == null && !fileName.endsWith(".mp3")) {
 			fileName += ".mp3";
 		} 
 		File file = new File(savePath + PropertiesUtils.getFileSeparator() + fileName);
@@ -157,5 +155,19 @@ public class Downloader extends Thread {
 			excuting.setEnabled(true);
 		}
 		//https://music.163.com/song?id=30064263&userid=135693455
+	}
+	
+	private void checkMusicResource(String url) {
+		if(!url.endsWith(".mp3")) {
+			message.setForeground(Color.RED);
+			message.setText("此链接无法下载音乐...");
+			message.setVisible(true);
+			throw new IllegalAccessError("此链接无法下载音乐...");
+		}
+	}
+	
+	private String getFileExt(String path) {
+		if(!path.contains(".")) return null;
+		return path.substring(path.lastIndexOf('.'));
 	}
 }
