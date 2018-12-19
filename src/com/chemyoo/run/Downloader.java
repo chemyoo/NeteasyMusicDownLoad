@@ -87,20 +87,14 @@ public class Downloader extends Thread {
 			this.setEnabled();
 			return;
 		} 
-		if(!isNotBlank(fileName)) {
-			fileName = DigestUtils.md5Hex(fileName) + ext;
-		} 
-		if(this.getFileExt(fileName) == null) {
-			fileName += ext;
-		}
-		InputStream in = null;
-		HttpURLConnection httpConnection = null;
 		
-		File file = new File(savePath + PropertiesUtils.getFileSeparator() + fileName);
+		File file = new File(savePath + PropertiesUtils.getFileSeparator() + getFileName(ext));
 		File parent = file.getParentFile();
 		
 		if(!parent.exists()) parent.mkdirs();
 		
+		InputStream in = null;
+		HttpURLConnection httpConnection = null;
 		try (FileOutputStream write = new FileOutputStream(file)){
 			semaphore.acquire();
 			String userAgent = new String []{"Mozilla/4.0","Mozilla/5.0","Opera/9.80"}[random.nextInt(3)];
@@ -111,7 +105,6 @@ public class Downloader extends Thread {
 			httpConnection.setConnectTimeout(60 * 1000);
 			// 设置从主机读取数据超时（单位：毫秒） 
 			httpConnection.setReadTimeout(90 * 1000);
-			
 			
 			httpConnection.setRequestProperty("User-agent", userAgent);
 			
@@ -173,5 +166,15 @@ public class Downloader extends Thread {
 	
 	private void setEnabled() {
 		excuting.setEnabled(true);
+	}
+	
+	private String getFileName(String ext) {
+		if(!isNotBlank(fileName)) {
+			fileName = DigestUtils.md5Hex(fileName) + ext;
+		} 
+		if(this.getFileExt(fileName) == null) {
+			fileName += ext;
+		}
+		return fileName;
 	}
 }
