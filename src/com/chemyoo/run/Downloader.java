@@ -77,7 +77,7 @@ public class Downloader extends Thread {
 		String url = musicUrl;
 		if(musicId != null) {
 			url = API_URL.replace("${id}", musicId);
-			fileName = musicId;
+			if(fileName == null) fileName = musicId;
 		} else {
 			fileName = url.substring(url.replace('\\', '/').lastIndexOf('/') + 1);
 		}
