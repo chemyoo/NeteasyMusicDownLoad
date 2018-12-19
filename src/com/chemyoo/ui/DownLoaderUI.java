@@ -7,7 +7,6 @@ import com.chemyoo.run.Downloader;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.filechooser.FileSystemView;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -77,7 +76,8 @@ public class DownLoaderUI extends JFrame{
         preferredSize = new Dimension(98,20);//…Ë÷√≥ﬂ¥Á
         label2.setPreferredSize(preferredSize);
         label2.setHorizontalAlignment(JTextField.RIGHT);
-        final JTextField path = new JTextField(FileSystemView.getFileSystemView().getHomeDirectory().getAbsolutePath());  
+        File[] root = File.listRoots();
+        final JTextField path = new JTextField(root[root.length - 1].getAbsolutePath() + "music");  
         path.setColumns(25);  
         pane2.add(label2);  
         pane2.add(path);  
@@ -92,11 +92,9 @@ public class DownLoaderUI extends JFrame{
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				File file = SelectFiles.getSavePath();
-				if(file == null) {
-					path.setText("");
-				} else {
+				if(file != null) {
 					path.setText(file.getAbsolutePath());
-				}
+				} 
 			}
 		});
         
