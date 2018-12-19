@@ -96,7 +96,8 @@ public class Downloader extends Thread {
 					write.write(bytes);
 					count += bytes.length;
 					bytes = new byte[in.available()];
-					message.setText(size + "正在下载：" +(count * 100 / available) + "%");
+					String progress = String.format("正在下载：%.2f", count * 100F / available) + "%";
+					message.setText(size + progress);
 				}
 				message.setText(size + "下载完成：100%");
 			}
