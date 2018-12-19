@@ -2,7 +2,7 @@
 
 echo 程序运行中...
 
-java -jar %~dp0\网易云下载音乐(免vip).jar
+java -jar %~dp0\DownLoader.jar
 
 echo 程序正在退出...
 
