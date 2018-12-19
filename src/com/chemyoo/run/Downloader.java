@@ -11,7 +11,6 @@ import java.util.concurrent.Semaphore;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import com.chemyoo.ui.PropertiesUtils;
@@ -27,15 +26,12 @@ public class Downloader extends Thread {
 	
 	private String fileName;
 	
-	private String musicId;
-	
-	private String musicUrl;
+	private String resourceUrl;
 	
 	private String savePath;
 	
 	private JLabel message;
 	
-	private static final String API_URL = "http://music.163.com/song/media/outer/url?id=${id}.mp3";
 	protected static Random random = new Random();
 	
 	// 公平信号量，信号量至少为一个
@@ -49,46 +45,14 @@ public class Downloader extends Thread {
 		this.fileName = fileName;
 		this.savePath = savePath;
 		this.message = message;
-		String[] split = musicUrl.split("[?]");
-		if(split.length > 1 && musicUrl.toLowerCase().contains("id")) {
-			String[] params = split[1].split("&");
-			for(String s : params) {
-				if(s.startsWith("id") || s.startsWith("ID")) {
-					this.musicId = s.substring(s.toLowerCase().indexOf("id=") + 3);
-				}
-			}
-		}
-		this.musicUrl = musicUrl;
+		this.resourceUrl = musicUrl;
 		this.excuting = excuting;
 	}
 	
-	private static boolean isNotBlank(String...args) {
-		for(String arg : args) {
-			if(arg == null || "".equals(arg.trim())) {
-				return false;
-			}
-		}
-		return true;
-	}
-
 
 	@Override
 	public void run() {
-		String url = musicUrl;
-		if(musicId != null) {
-			url = API_URL.replace("${id}", musicId);
-			if(fileName == null) fileName = musicId;
-		} else {
-			fileName = url.substring(url.replace('\\', '/').lastIndexOf('/') + 1);
-		}
-		String ext = this.getFileExt(url);
-		if(ext == null || ext.length() > 5) {
-			this.setMessage(Color.RED, "此链接无法下载...");
-			this.setEnabled();
-			return;
-		} 
-		
-		File file = new File(savePath + PropertiesUtils.getFileSeparator() + getFileName(ext));
+		File file = new File(savePath + PropertiesUtils.getFileSeparator() + fileName);
 		File parent = file.getParentFile();
 		
 		if(!parent.exists()) parent.mkdirs();
@@ -98,7 +62,7 @@ public class Downloader extends Thread {
 		try (FileOutputStream write = new FileOutputStream(file)){
 			semaphore.acquire();
 			String userAgent = new String []{"Mozilla/4.0","Mozilla/5.0","Opera/9.80"}[random.nextInt(3)];
-			URL uri = new URL(url);
+			URL uri = new URL(resourceUrl);
 			httpConnection = (HttpURLConnection) uri.openConnection();
 			
 			// 设置连接主机超时（单位：毫秒）  
@@ -117,7 +81,7 @@ public class Downloader extends Thread {
 				if(in == null)
 					in = httpConnection.getInputStream();
 				
-				logger.error("网址：" + url + "访问失败：" 
+				logger.error("网址：" + resourceUrl + "访问失败：" 
 						+ IOUtils.toString(in, "gb2312"));
 				throw new IllegalAccessError("网址连接失败...");
 			} else {
@@ -151,12 +115,6 @@ public class Downloader extends Thread {
 		//https://music.163.com/song?id=30064263&userid=135693455
 	}
 	
-	private String getFileExt(String path) {
-		String name = path.substring(path.replace('\\', '/').lastIndexOf('/') + 1);
-		if(!name.contains(".")) return null;
-		return name.substring(name.lastIndexOf('.'));
-	}
-	
 	private void setMessage(Color color, String msg) {
 		if(color != null) message.setForeground(color);
 		
@@ -168,13 +126,4 @@ public class Downloader extends Thread {
 		excuting.setEnabled(true);
 	}
 	
-	private String getFileName(String ext) {
-		if(!isNotBlank(fileName)) {
-			fileName = DigestUtils.md5Hex(fileName) + ext;
-		} 
-		if(this.getFileExt(fileName) == null) {
-			fileName += ext;
-		}
-		return fileName;
-	}
 }

@@ -52,7 +52,7 @@ public class DownLoaderUI extends JFrame{
 		JPanel pane4 = new JPanel();
 		JPanel pane5 = new JPanel();
 
-        JLabel label1=new JLabel("网易云音乐链接*");  
+        JLabel label1=new JLabel("链接地址*");  
         Dimension preferredSize = new Dimension(98,20);//设置尺寸
         label1.setPreferredSize(preferredSize);
         label1.setHorizontalAlignment(JTextField.RIGHT);
@@ -61,7 +61,7 @@ public class DownLoaderUI extends JFrame{
         pane1.add(label1);  
         pane1.add(musicUrl);  
         
-        JLabel label4 = new JLabel("文件名(可不填)");  
+        JLabel label4 = new JLabel("文件名*");  
         label4.setPreferredSize(preferredSize);
         label4.setHorizontalAlignment(JTextField.RIGHT);
         final JTextField fileName = new JTextField();  
@@ -114,22 +114,28 @@ public class DownLoaderUI extends JFrame{
 			 */
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if(isNotBlank(musicUrl.getText()) && isNotBlank(path.getText())) {
+				if(isNotBlank(musicUrl.getText(), path.getText(), fileName.getText())) {
 					try {
-						start.setEnabled(false);
-						message.setVisible(false);
-						new Downloader(musicUrl.getText(), 
-								fileName.getText(), 
-								path.getText(), 
-								message, 
-								start).start();
+						if(getFileExt(fileName.getText()) == null) {
+							message.setForeground(Color.RED);
+							message.setText("请输入文件名全称（包含拓展名）。");
+							message.setVisible(true);
+						} else {
+							start.setEnabled(false);
+							message.setVisible(false);
+							new Downloader(musicUrl.getText(), 
+									fileName.getText(), 
+									path.getText(), 
+									message, 
+									start).start();
+						}
 					} catch (Exception ex) {
 						message.setForeground(Color.RED);
 						message.setText("下载失败：" + ex.getMessage());
 						message.setVisible(true);
 					}
 				} else {
-					message.setText("音乐链接和保存路径都不能为空！");
+					message.setText("链接地址、文件名和保存路径都不能为空！");
 					message.setVisible(true);
 					LOG.info("download failure.");
 				}
@@ -154,6 +160,11 @@ public class DownLoaderUI extends JFrame{
 			}
 		}
 		return true;
+	}
+	
+	private static String getFileExt(String fileName) {
+		if(!fileName.contains(".")) return null;
+		return fileName.substring(fileName.lastIndexOf('.'));
 	}
 
 }
