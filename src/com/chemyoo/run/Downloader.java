@@ -84,6 +84,7 @@ public class Downloader extends Thread {
 			message.setForeground(Color.RED);
 			message.setText("此链接无法下载音乐...");
 			message.setVisible(true);
+			excuting.setEnabled(true);
 			return;
 		}
 		InputStream in = null;
