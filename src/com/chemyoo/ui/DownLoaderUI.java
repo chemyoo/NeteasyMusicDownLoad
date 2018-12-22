@@ -77,7 +77,7 @@ public class DownLoaderUI extends JFrame{
         label2.setPreferredSize(preferredSize);
         label2.setHorizontalAlignment(JTextField.RIGHT);
         File[] root = File.listRoots();
-        final JTextField path = new JTextField(root[root.length - 1].getAbsolutePath() + "downloads");  
+        final JTextField path = new JTextField(root[0].getAbsolutePath() + "downloads");
         path.setColumns(25);  
         pane2.add(label2);  
         pane2.add(path);  

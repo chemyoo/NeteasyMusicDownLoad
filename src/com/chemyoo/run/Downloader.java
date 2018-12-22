@@ -9,6 +9,9 @@ import java.net.URL;
 import java.util.Random;
 import java.util.concurrent.Semaphore;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import org.apache.commons.io.IOUtils;
@@ -62,7 +65,14 @@ public class Downloader extends Thread {
 		try (FileOutputStream write = new FileOutputStream(file)){
 			semaphore.acquire();
 			String userAgent = new String []{"Mozilla/4.0","Mozilla/5.0","Opera/9.80"}[random.nextInt(3)];
+			
 			URL uri = new URL(resourceUrl);
+			HttpsURLConnection.setDefaultSSLSocketFactory(SelfSSLSocket.getSSLSocketFactory());
+			HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+				public boolean verify(String hostname, SSLSession session) {
+					return true;
+				}
+			});
 			httpConnection = (HttpURLConnection) uri.openConnection();
 			
 			// 设置连接主机超时（单位：毫秒）  
@@ -86,7 +96,7 @@ public class Downloader extends Thread {
 				throw new IllegalAccessError("网址连接失败...");
 			} else {
 				in = httpConnection.getInputStream();
-				int available = httpConnection.getContentLength();
+				long available = Math.abs(httpConnection.getContentLengthLong());
 				String size = String.format("文件大小%.2fMB，", available * 1F / (1024 * 1024));
 				long count = 0;
 				message.setForeground(Color.BLUE);
@@ -98,15 +108,18 @@ public class Downloader extends Thread {
 					bytes = new byte[in.available()];
 					String progress = String.format("正在下载：%.2f", count * 100F / available) + "%";
 					message.setText(size + progress);
+					if(count >= available) {
+						break;
+					}
 				}
 				message.setText(size + "下载完成：100%");
 			}
-		} catch (Exception e) {
+		} catch (Exception | IllegalAccessError e) {
 			this.setMessage(Color.RED, "下载失败，详情请查看/logs下的日志。");
 			logger.error(e.getMessage(), e);
 		} finally {
 			IOUtils.closeQuietly(in);
-			// 待文件流被释放后，下载成功，进行文件分辨率辨识		
+			// 待文件流被释放后，下载成功	
 			in = null;
 			if(httpConnection != null)
 				httpConnection.disconnect();
