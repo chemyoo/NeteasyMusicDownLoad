@@ -122,7 +122,7 @@ public class Downloader extends Thread {
 				throw new IllegalAccessError("网址连接失败...");
 			} else {
 				in = httpConnection.getInputStream();
-				int available = httpConnection.getContentLength();
+				long available = httpConnection.getContentLengthLong();
 				String size = String.format("文件大小%.2fMB，", available * 1F / (1024 * 1024));
 				long count = 0;
 				message.setForeground(Color.BLUE);
