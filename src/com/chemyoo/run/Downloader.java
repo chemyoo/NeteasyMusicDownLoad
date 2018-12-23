@@ -111,7 +111,7 @@ public class Downloader extends Thread {
 			// 连接网站
 			httpConnection.connect();
 			
-			// 网址连接失败就继续向下一个网址执行。
+			// handle what can not connect the url.
 			if(httpConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
 				in = httpConnection.getErrorStream();
 				if(in == null)
@@ -141,7 +141,6 @@ public class Downloader extends Thread {
 			logger.error(e.getMessage(), e);
 		} finally {
 			IOUtils.closeQuietly(in);
-			// 待文件流被释放后，下载成功，进行文件分辨率辨识		
 			in = null;
 			if(httpConnection != null)
 				httpConnection.disconnect();
