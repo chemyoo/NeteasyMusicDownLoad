@@ -12,6 +12,8 @@ import javax.swing.filechooser.FileSystemView;
  * @description 文件选择框
  */
 public class SelectFiles {
+	
+	private SelectFiles() {}
 
 	public static File getSavePath() {
 		FileSystemView fsv = FileSystemView.getFileSystemView();  //注意了，这里重要的一句
