@@ -33,4 +33,21 @@ public class SelectFiles {
 		return null;
 	}
 	
+	public static File getFilePath() {
+		FileSystemView fsv = FileSystemView.getFileSystemView();  //注意了，这里重要的一句
+		//设置最初路径为桌面路径              
+		JFileChooser fileChooser = new JFileChooser(fsv.getHomeDirectory());//"F:/pic"
+		fileChooser.setDialogTitle("请选择文件夹...");
+		fileChooser.setApproveButtonText("确定");
+		fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+		//设置文件是否可多选
+		fileChooser.setMultiSelectionEnabled(false);
+		fileChooser.setAcceptAllFileFilterUsed(false);// 去掉显示所有文件的按钮
+//		fileChooser.setFileFilter(new SelectFileFilter())
+		if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			return fileChooser.getSelectedFile();
+		}
+		return null;
+	}
+	
 }

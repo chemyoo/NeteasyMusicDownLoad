@@ -3,9 +3,13 @@ package com.chemyoo.run;
 import java.awt.Color;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Semaphore;
 
@@ -43,6 +47,12 @@ public class Downloader extends Thread {
 	private JButton excuting;
 	
 	private Logger logger = Logger.getLogger(Downloader.class.getName());
+	
+	private List<Integer> byteCache = new ArrayList<>();
+	
+	private long downloaded = 0; 
+	
+	private int downsize = 4 * 1024; 
 	
 	public Downloader(String musicUrl, String fileName, String savePath, JLabel message, JButton excuting) {
 		this.fileName = fileName;
@@ -92,26 +102,23 @@ public class Downloader extends Thread {
 					in = httpConnection.getInputStream();
 				
 				logger.error("网址：" + resourceUrl + "访问失败：" 
-						+ IOUtils.toString(in, "gb2312"));
+						+ IOUtils.toString(in, Charset.forName("utf-8").displayName()));
 				throw new IllegalAccessError("网址连接失败...");
 			} else {
 				in = httpConnection.getInputStream();
 				long available = Math.abs(httpConnection.getContentLengthLong());
 				String size = String.format("文件大小%.2fMB，", available * 1F / (1024 * 1024));
-				long count = 0;
 				message.setForeground(Color.BLUE);
-				byte [] bytes = new byte[in.available()];
 				message.setVisible(true);
-				while (in.read(bytes) != -1) {
-					write.write(bytes);
-					count += bytes.length;
-					bytes = new byte[in.available()];
-					String progress = String.format("正在下载：%.2f", count * 100F / available) + "%";
-					message.setText(size + progress);
-					if(count >= available) {
+				int c = -1;
+				while ((c = in.read()) != -1) {
+					byteCache.add(c);
+					this.flush(write, downsize, size, available);
+					if(downloaded >= available) {
 						break;
 					}
 				}
+				this.flush(write, byteCache.size(), size, available);
 				message.setText(size + "下载完成：100%");
 			}
 		} catch (Exception | IllegalAccessError e) {
@@ -127,6 +134,20 @@ public class Downloader extends Thread {
 			this.setEnabled();
 		}
 		//https://music.163.com/song?id=30064263&userid=135693455
+	}
+	
+	private void flush(FileOutputStream write, int downSize, String size, long available) throws IOException {
+		if(this.byteCache.size() >= downSize) {
+			byte [] bytes = new byte[downSize];
+			for(int i = 0, len = bytes.length; i < len; i++) {
+				bytes[i] = this.byteCache.get(i).byteValue();
+			}
+			write.write(bytes);
+			downloaded += bytes.length;
+			byteCache.clear();
+			String progress = String.format("正在下载：%.2f", downloaded * 100F / available) + "%";
+			message.setText(size + progress);
+		} 
 	}
 	
 	private void setMessage(Color color, String msg) {
