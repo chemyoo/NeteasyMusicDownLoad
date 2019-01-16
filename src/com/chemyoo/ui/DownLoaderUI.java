@@ -91,7 +91,8 @@ public class DownLoaderUI extends JFrame{
         button.addMouseListener(new MouseEventAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				File file = SelectFiles.getSavePath();
+				String current = path.getText();
+				File file = SelectFiles.getSavePath(current);
 				if(file != null) {
 					path.setText(file.getAbsolutePath());
 				} 

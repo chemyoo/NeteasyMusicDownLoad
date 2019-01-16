@@ -15,10 +15,17 @@ public class SelectFiles {
 	
 	private SelectFiles() {}
 
-	public static File getSavePath() {
-		FileSystemView fsv = FileSystemView.getFileSystemView();  //注意了，这里重要的一句
-		//设置最初路径为桌面路径              
-		JFileChooser fileChooser = new JFileChooser(fsv.getHomeDirectory());//"F:/pic"
+	public static File getSavePath(String current) {
+		File defaultView = null;
+		if(current != null && current.trim().length() != 0) {
+			defaultView = new File(current.trim());
+		} else {
+			// 设置最初路径为桌面路径              
+			FileSystemView fsv = FileSystemView.getFileSystemView();  //注意了，这里重要的一句
+			defaultView = fsv.getHomeDirectory();
+		}
+		
+		JFileChooser fileChooser = new JFileChooser(defaultView);
 		fileChooser.setDialogTitle("请选择文件夹...");
 		fileChooser.setApproveButtonText("确定");
 		//只选择文件夹

@@ -8,7 +8,10 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Semaphore;
@@ -54,6 +57,12 @@ public class Downloader extends Thread {
 	
 	private int downsize = 4 * 1024; 
 	
+	private long startTime = 0;
+	
+	private SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+	
+	private long offset = Calendar.getInstance().getTimeZone().getRawOffset();
+	
 	public Downloader(String musicUrl, String fileName, String savePath, JLabel message, JButton excuting) {
 		this.fileName = fileName;
 		this.savePath = savePath;
@@ -65,6 +74,7 @@ public class Downloader extends Thread {
 
 	@Override
 	public void run() {
+		this.startTime = System.currentTimeMillis();
 		File file = new File(savePath + PropertiesUtils.getFileSeparator() + fileName);
 		File parent = file.getParentFile();
 		
@@ -114,12 +124,9 @@ public class Downloader extends Thread {
 				while ((c = in.read()) != -1) {
 					byteCache.add(c);
 					this.flush(write, downsize, size, available);
-					if(downloaded >= available) {
-						break;
-					}
 				}
 				this.flush(write, byteCache.size(), size, available);
-				message.setText(size + "下载完成：100%");
+				message.setText(size + "下载完成：100%，用时：" + getTakeTime());
 			}
 		} catch (Exception | IllegalAccessError e) {
 			this.setMessage(Color.RED, "下载失败，详情请查看/logs下的日志。");
@@ -146,7 +153,7 @@ public class Downloader extends Thread {
 			downloaded += bytes.length;
 			byteCache.clear();
 			String progress = String.format("正在下载：%.2f", downloaded * 100F / available) + "%";
-			message.setText(size + progress);
+			message.setText(size + progress + "，用时：" + getTakeTime());
 		} 
 	}
 	
@@ -159,6 +166,11 @@ public class Downloader extends Thread {
 	
 	private void setEnabled() {
 		excuting.setEnabled(true);
+	}
+	
+	private String getTakeTime() {
+		long take = System.currentTimeMillis() - startTime - offset;
+		return dateFormat.format(new Date(take));
 	}
 	
 }
