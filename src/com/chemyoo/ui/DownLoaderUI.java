@@ -7,10 +7,14 @@ import com.chemyoo.run.Downloader;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 /** 
  * @author 作者 : jianqing.liu
  * @version 创建时间：2018年5月30日 上午9:35:07 
@@ -71,6 +75,29 @@ public class DownLoaderUI extends JFrame{
         
         pane1.setAlignmentX(LEFT_ALIGNMENT);
         pane5.setAlignmentX(LEFT_ALIGNMENT);
+        
+        musicUrl.getDocument().addDocumentListener(new DocumentListener() {
+
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				String text = musicUrl.getText().trim();
+				try {
+					fileName.setText(getFileNameFromUrl(URLDecoder.decode(text, "utf-8")));
+				} catch (UnsupportedEncodingException ex) {
+					LOG.error(ex.getMessage(), ex);
+				}
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				this.insertUpdate(e);
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				LOG.info("changedUpdate:" + musicUrl.getText().trim());
+			}
+		});
         
         JLabel label2=new JLabel("本地保存路径*");  
         preferredSize = new Dimension(98,20);//设置尺寸
@@ -166,6 +193,11 @@ public class DownLoaderUI extends JFrame{
 	private static String getFileExt(String fileName) {
 		if(!fileName.contains(".")) return null;
 		return fileName.substring(fileName.lastIndexOf('.'));
+	}
+	
+	private static String getFileNameFromUrl(String url) {
+		if(!url.replace('\\', '/').contains("/")) return "";
+		return url.substring(url.lastIndexOf('/') + 1);
 	}
 
 }

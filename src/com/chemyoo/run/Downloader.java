@@ -93,6 +93,7 @@ public class Downloader extends Thread {
 					return true;
 				}
 			});
+			logger.info("URL.getFile = " + uri.getFile());
 			httpConnection = (HttpURLConnection) uri.openConnection();
 			
 			// 设置连接主机超时（单位：毫秒）  
@@ -152,6 +153,9 @@ public class Downloader extends Thread {
 			write.write(bytes);
 			downloaded += bytes.length;
 			byteCache.clear();
+			if(available < 2) {
+				available = downloaded;
+			}
 			String progress = String.format("正在下载：%.2f", downloaded * 100F / available) + "%";
 			message.setText(size + progress + "，用时：" + getTakeTime());
 		} 
