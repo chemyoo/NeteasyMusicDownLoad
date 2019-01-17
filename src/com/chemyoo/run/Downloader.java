@@ -21,6 +21,8 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import com.chemyoo.ui.PropertiesUtils;
@@ -118,7 +120,7 @@ public class Downloader extends Thread {
 			} else {
 				in = httpConnection.getInputStream();
 				long available = Math.abs(httpConnection.getContentLengthLong());
-				String size = String.format("文件大小%.2fMB，", available * 1F / (1024 * 1024));
+				String size = getContentSize(available);
 				message.setForeground(Color.BLUE);
 				message.setVisible(true);
 				int c = -1;
@@ -127,7 +129,12 @@ public class Downloader extends Thread {
 					this.flush(write, downsize, size, available);
 				}
 				this.flush(write, byteCache.size(), size, available);
-				message.setText(size + "下载完成：100%，用时：" + getTakeTime());
+				if(available < 2) {
+					String fileSize = getContentSize(FileUtils.sizeOf(file));
+					message.setText(fileSize + "下载完成：100%，用时：" + getTakeTime());
+				} else {
+					message.setText(size + "下载完成：100%，用时：" + getTakeTime());
+				}
 			}
 		} catch (Exception | IllegalAccessError e) {
 			this.setMessage(Color.RED, "下载失败，详情请查看/logs下的日志。");
@@ -144,6 +151,10 @@ public class Downloader extends Thread {
 		//https://music.163.com/song?id=30064263&userid=135693455
 	}
 	
+	private String getContentSize(long size) {
+		return String.format("文件大小%.2fMB，", size * 1F / (1024 * 1024));
+	}
+	
 	private void flush(FileOutputStream write, int downSize, String size, long available) throws IOException {
 		if(this.byteCache.size() >= downSize) {
 			byte [] bytes = new byte[downSize];
@@ -153,12 +164,13 @@ public class Downloader extends Thread {
 			write.write(bytes);
 			downloaded += bytes.length;
 			byteCache.clear();
-			if(available < 2) {
-				available = downloaded;
-			}
-			String progress = String.format("正在下载：%.2f", downloaded * 100F / available) + "%";
-			message.setText(size + progress + "，用时：" + getTakeTime());
 		} 
+		if(available < 2) {
+			// 若文件大小位置，则显示下载进度为50%
+			available = (long)(downloaded + downloaded * 0.6);
+		}
+		String progress = String.format("正在下载：%.2f", downloaded * 100F / available) + "%";
+		message.setText(size + progress + "，用时：" + getTakeTime());
 	}
 	
 	private void setMessage(Color color, String msg) {

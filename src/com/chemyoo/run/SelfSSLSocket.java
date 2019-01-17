@@ -25,7 +25,9 @@ public class SelfSSLSocket {
 	public static SSLSocketFactory getSSLSocketFactory() {
 		SSLSocketFactory factory = null;
 		try {
-			TrustManager[] trust = { new IgnoreX509TrustManager() };
+			System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2,SSLv3"); 
+			System.setProperty("jdk.tls.client.protocols", "TLSv1,TLSv1.1,TLSv1.2,SSLv3"); 
+			TrustManager[] trust = {new IgnoreX509TrustManager()};
 			SSLContext sslContext = SSLContext.getInstance("SSL", "SunJSSE");
 			// 从上述SSLContext对象中得到SSLSocketFactory对象
 			sslContext.init(null, trust, new SecureRandom());
