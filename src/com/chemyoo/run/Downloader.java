@@ -95,7 +95,7 @@ public class Downloader extends Thread {
 					return true;
 				}
 			});
-			logger.info("URL.getFile = " + uri.getFile());
+			logger.info(uri.getProtocol() + " -> URL.getFile = " + uri.getFile());
 			httpConnection = (HttpURLConnection) uri.openConnection();
 			
 			// 设置连接主机超时（单位：毫秒）  
