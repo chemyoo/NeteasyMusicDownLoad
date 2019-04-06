@@ -76,8 +76,7 @@ public class DownLoaderUI extends JFrame{
         preferredSize = new Dimension(98,20);//…Ë÷√≥ﬂ¥Á
         label2.setPreferredSize(preferredSize);
         label2.setHorizontalAlignment(JTextField.RIGHT);
-        File[] root = File.listRoots();
-        final JTextField path = new JTextField(root[root.length - 1].getAbsolutePath() + "music");  
+        final JTextField path = new JTextField("E:/KuGou/song");  
         path.setColumns(25);  
         pane2.add(label2);  
         pane2.add(path);  
