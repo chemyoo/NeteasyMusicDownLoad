@@ -193,8 +193,12 @@ public class DownLoaderUI extends JFrame{
 							Desktop.getDesktop().open(file);
 							LOG.info("open file: " + file.getAbsolutePath());
 						} catch (IOException e1) {
-							LOG.info("failed open file.");
+							message.setText("failed open file. file is not exists");
+							message.setVisible(true);
 						}
+        			} else {
+        				message.setText("failed open file. file is not exists");
+						message.setVisible(true);
         			}
         		}
         	}
