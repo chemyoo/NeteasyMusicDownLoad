@@ -1,20 +1,28 @@
 package com.chemyoo.ui;
 
 
-import org.apache.log4j.Logger;
+import java.awt.Color;
+import java.awt.Desktop;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
-import com.chemyoo.run.Downloader;
-
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
+import org.apache.log4j.Logger;
+
+import com.chemyoo.run.Downloader;
 /** 
  * @author 作者 : jianqing.liu
  * @version 创建时间：2018年5月30日 上午9:35:07 
@@ -131,6 +139,11 @@ public class DownLoaderUI extends JFrame{
         start.setPreferredSize(preferredSize);
         pane3.add(start);
         
+        final JButton openFile = new JButton("打开");
+        preferredSize = new Dimension(90,25);//设置尺寸
+        openFile.setPreferredSize(preferredSize);
+        pane3.add(openFile);
+        
         final JLabel message = new JLabel();
 		message.setForeground(Color.RED);
 		message.setVisible(false);
@@ -169,6 +182,23 @@ public class DownLoaderUI extends JFrame{
 				}
 			}
 		});
+        
+        openFile.addMouseListener(new MouseEventAdapter() {
+        	@Override
+			public void mouseClicked(MouseEvent e) {
+        		if(isNotBlank(path.getText())) {
+        			File file = new File(path.getText().trim());
+        			if(file.exists()) {
+        				try {
+							Desktop.getDesktop().open(file);
+							LOG.info("open file: " + file.getAbsolutePath());
+						} catch (IOException e1) {
+							LOG.info("failed open file.");
+						}
+        			}
+        		}
+        	}
+        });
         
 
 //		pane6.setBackground(new Color(255,255,224))
