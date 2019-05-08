@@ -45,7 +45,7 @@ public class DownLoaderUI extends JFrame{
 	 * 初始化UI进行显示
 	 */
 	public void initSpiderUI() {
-		this.setTitle("DownLoaderUI(作者：chemyoo@foxmail.com)");  
+		this.setTitle("网易云音乐下载工具(作者：chemyoo@foxmail.com)");  
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  
         this.setSize(500, 250);
         this.setLocationRelativeTo(null);//窗体居中显示  
