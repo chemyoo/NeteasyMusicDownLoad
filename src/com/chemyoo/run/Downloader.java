@@ -25,6 +25,7 @@ import javax.swing.JLabel;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+
 import com.chemyoo.ui.PropertiesUtils;
 
 
@@ -114,7 +115,7 @@ public class Downloader extends Thread {
 				if(in == null)
 					in = httpConnection.getInputStream();
 				
-				logger.error("Õ¯÷∑£∫" + resourceUrl + "∑√Œ  ß∞‹£∫" 
+				logger.error("¥ÌŒÛ¥˙¬Î£∫" + httpConnection.getResponseCode() + "£¨Õ¯÷∑£∫" + resourceUrl + "∑√Œ  ß∞‹£∫" 
 						+ IOUtils.toString(in, Charset.forName("utf-8").displayName()));
 				throw new IllegalAccessError("Õ¯÷∑¡¨Ω” ß∞‹...");
 			} else {
