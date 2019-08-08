@@ -92,6 +92,7 @@ public class Downloader extends Thread {
 			URL uri = new URL(resourceUrl);
 			HttpsURLConnection.setDefaultSSLSocketFactory(SelfSSLSocket.getSSLSocketFactory());
 			HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+				@Override
 				public boolean verify(String hostname, SSLSession session) {
 					return true;
 				}
